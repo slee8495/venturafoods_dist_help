@@ -33,6 +33,11 @@ file %>%
   data.frame() -> tab_1
 
 # Relocating
+
+tab_1 %>% 
+  dplyr::relocate(order_number,	or_ty,	original_or_num,	actual_ship,	x2nd_item_number,	description_1,	quantity,
+                  uom, quantity_ordered, quantity_shipped, customer_po, ship_to,	sold_to,	sold_to_name, branch_plant) -> for_tab_2
+
 tab_1 %>% 
   dplyr::relocate(order_number,	or_ty,	original_or_num,	actual_ship,	x2nd_item_number,	description_1,	quantity,
                   uom, quantity_ordered, quantity_shipped, customer_po, ship_to,	sold_to,	sold_to_name, branch_plant) -> tab_1
@@ -60,7 +65,8 @@ colnames(tab_1)[15] <- "Branch/Plant"
 ########## Tab 2 ##########
 
 
-tab_1
+# cont of order number
+reshape2::dcast(for_tab_2, )
 
 
 
