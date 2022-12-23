@@ -66,7 +66,7 @@ colnames(tab_1)[15] <- "Branch/Plant"
 
 
 # cont of order number
-reshape2::dcast(for_tab_2, )
+reshape2::dcast(for_tab_2, sold_to_name ~ . , value.var = "order_number", length)
 
 
 
