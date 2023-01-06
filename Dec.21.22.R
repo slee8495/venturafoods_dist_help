@@ -66,8 +66,12 @@ colnames(tab_1)[15] <- "Branch/Plant"
 
 
 # cont of order number
-reshape2::dcast(for_tab_2, sold_to_name ~ . , value.var = "order_number", length) %>% 
-  dplyr::rename(orders = ".") -> table_1
+reshape2::dcast(for_tab_2, sold_to_name +order_number ~ . , value.var = "order_number", length) %>% 
+  dplyr::group_by(sold_to_name) %>% 
+  dplyr::count() %>% 
+  dplyr::rename(orders = n) -> table_1
+
+
 reshape2::dcast(for_tab_2, sold_to_name ~ . , value.var = "quantity", sum) %>% 
   dplyr::rename(cases = ".") -> table_2
 
