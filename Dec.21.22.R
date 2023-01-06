@@ -66,10 +66,50 @@ colnames(tab_1)[15] <- "Branch/Plant"
 
 
 # cont of order number
-reshape2::dcast(for_tab_2, sold_to_name ~ . , value.var = "order_number", length)
+reshape2::dcast(for_tab_2, sold_to_name ~ . , value.var = "order_number", length) %>% 
+  dplyr::rename(orders = ".") -> table_1
+reshape2::dcast(for_tab_2, sold_to_name ~ . , value.var = "quantity", sum) %>% 
+  dplyr::rename(cases = ".") -> table_2
 
 
 
+reshape2::dcast(for_tab_2, sold_to_name + order_number ~ . , value.var = "quantity", length) %>% 
+  dplyr::rename(count = ".") %>% 
+  plyr::ddply("sold_to_name", transform, count_2 = sum(count)) %>% 
+  dplyr::group_by(sold_to_name, count_2) %>% 
+  dplyr::count() %>% 
+  dplyr::mutate(lines_per_order_avg = count_2 / n) %>%
+  dplyr::ungroup() %>% 
+  dplyr::select(sold_to_name, lines_per_order_avg) -> table_3
+
+
+
+
+table_1 %>% 
+  dplyr::left_join(table_2) %>% 
+  dplyr::left_join(table_3) %>% 
+  dplyr::mutate(cs_per_order_avg = cases / orders) %>% 
+  dplyr::mutate(cases_per_line = cs_per_order_avg / lines_per_order_avg) %>% 
+  dplyr::mutate(cases = round(cases, 0),
+                lines_per_order_avg = round(lines_per_order_avg, 1),
+                cs_per_order_avg = round(cs_per_order_avg, 1),
+                cases_per_line = round(cases_per_line, 2)) %>% 
+  dplyr::relocate(sold_to_name, orders, cases, cs_per_order_avg, lines_per_order_avg, cases_per_line) -> tab_2
+
+
+
+
+# export to excel
+
+openxlsx::createWorkbook("example") -> example
+openxlsx::addWorksheet(example, "tab_name_1")
+openxlsx::addWorksheet(example, "tab_name_2")
+
+openxlsx::writeDataTable(example, "tab_name_1", tab_1)
+openxlsx::writeDataTable(example, "tab_name_2", tab_2)
+
+
+openxlsx::saveWorkbook(example, file = "Sales_Data.xlsx")
 
 
 
